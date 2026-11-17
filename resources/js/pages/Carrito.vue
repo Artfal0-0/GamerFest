@@ -393,38 +393,9 @@ const submitForm = async () => {
         let comprobantePath: string | null = null;
 
         if (comprobante_pago) {
-            const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-            const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-            if (!supabaseUrl || !supabaseAnonKey) {
-                throw new Error('Falta configurar Supabase Storage para subir comprobantes.');
-            }
-
-            const { data: upload } = await axios.post('/comprobantes/upload-url', {
-                content_type: comprobante_pago.type,
-            });
-            const uploadUrl = new URL(upload.url, supabaseUrl);
-            const uploadHeaders: Record<string, string> = {
-                apikey: supabaseAnonKey,
-                'cache-control': '3600',
-                'content-type': comprobante_pago.type,
-                'x-upsert': 'false',
-            };
-
-            if (supabaseAnonKey.startsWith('eyJ')) {
-                uploadHeaders.Authorization = `Bearer ${supabaseAnonKey}`;
-            }
-
-            const uploadResponse = await fetch(uploadUrl, {
-                method: 'PUT',
-                headers: uploadHeaders,
-                body: comprobante_pago,
-            });
-
-            if (!uploadResponse.ok) {
-                throw new Error('Supabase rechazó la subida del comprobante. Verifica la configuración del bucket.');
-            }
-
+            const uploadData = new FormData();
+            uploadData.append('comprobante', comprobante_pago);
+            const { data: upload } = await axios.post('/comprobantes/upload', uploadData);
             comprobantePath = upload.path;
         }
 

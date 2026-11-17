@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\AdModel;
 use App\Models\Juego;
 use App\Models\Sponsor;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -58,12 +57,15 @@ class WelcomeController extends Controller
             ->values()
             ->map(fn (Juego $juego) => $toPageData($juego, false));
 
-        $sponsors = Sponsor::all();
+        $sponsors = Sponsor::query()
+            ->where('active', true)
+            ->orderBy('id')
+            ->get(['id', 'nombre', 'url_pagina', 'url_imagen', 'active']);
 
         $ads = AdModel::all();
 
         return Inertia::render('Welcome', [
-            'role' => Auth::check() && Auth::user()->hasRole("admin"),
+            'role' => Auth::check() && Auth::user()->hasRole('admin'),
             'canLogin' => Route::has('login'),
             'canRegister' => Route::has('register'),
             'laravelVersion' => Application::VERSION,
@@ -74,5 +76,4 @@ class WelcomeController extends Controller
             'ads' => $ads,
         ]);
     }
-
 }

@@ -20,7 +20,6 @@ import { EyeIcon } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
 import { Toaster } from '@/components/ui/sonner';
 import { useForm } from '@inertiajs/vue3';
-import axios from 'axios';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -97,23 +96,19 @@ const form = useForm({
 });
 
 async function verComprobante(item: InscripcionRow) {
-    comprobanteSeleccionado.value = '';
+    const modalidad = item.modalidad === 'Individual' ? 'individual' : 'grupo';
+    comprobanteSeleccionado.value = `/admin/comprobantes/${modalidad}/${item.id}`;
     comprobanteImgLoading.value = true;
     showModal.value = true;
-    const modalidad = item.modalidad === 'Individual' ? 'individual' : 'grupo';
-
-    try {
-        const response = await axios.get(`/admin/comprobantes/${modalidad}/${item.id}`);
-        comprobanteSeleccionado.value = response.data.url;
-    } catch {
-        closeModal();
-        toast('No se pudo abrir el comprobante', {
-            description: 'Inténtalo de nuevo. Si el problema continúa, revisa la configuración de Supabase Storage.',
-        });
-    }
 }
 function onComprobanteImgLoad() {
     comprobanteImgLoading.value = false;
+}
+function onComprobanteImgError() {
+    closeModal();
+    toast('No se pudo abrir el comprobante', {
+        description: 'El archivo no está disponible en el almacenamiento local.',
+    });
 }
 function closeModal() {
     showModal.value = false;
@@ -244,6 +239,7 @@ function updatePaymentStatus(item: InscripcionRow, newEstado: string) {
                     alt="Comprobante de Pago"
                     class="max-w-full max-h-96 rounded-lg shadow-lg border border-gray-light/20"
                     @load="onComprobanteImgLoad"
+                    @error="onComprobanteImgError"
                 />
             </div>
         </Modal>

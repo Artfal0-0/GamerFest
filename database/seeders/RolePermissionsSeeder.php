@@ -3,11 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\DB as FacadesDB;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class RolePermissionsSeeder extends Seeder
@@ -30,7 +28,7 @@ class RolePermissionsSeeder extends Seeder
             'update_ganador_individual',
             'create_ganador_grupal',
             'delete_ganador_grupal',
-            'update_ganador_grupal'
+            'update_ganador_grupal',
         ];
 
         $jugadorPermissions = [
@@ -59,7 +57,7 @@ class RolePermissionsSeeder extends Seeder
             'view_self_inscripcion_grupal',
             'create_inscripcion_grupal',
             'delete_self_inscripcion_grupal',
-            'update_self_inscripcion_grupal'
+            'update_self_inscripcion_grupal',
         ];
 
         // Crear los permisos si no existen
@@ -71,14 +69,29 @@ class RolePermissionsSeeder extends Seeder
         $adminRole->syncPermissions($adminPermissions);
         $jugadorRole->syncPermissions($jugadorPermissions);
 
-        $adminUser = User::firstOrCreate([
-            'name' => 'Admin',
-            'email' => 'admin@ooops.dev',
-            'password' => Hash::make(env('APP_ADMIN_INITIAL_PASSWORD')),
-            'email_verified_at' => now(),
-        ]);
-        $adminUser->assignRole($adminRole);
+        $adminEmail = strtolower(trim((string) env('APP_ADMIN_INITIAL_EMAIL')));
 
+        if (! filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
+            throw new \InvalidArgumentException('Configura APP_ADMIN_INITIAL_EMAIL con el correo del administrador antes de ejecutar los seeders.');
+        }
+
+        $adminUser = User::firstOrNew(['email' => $adminEmail]);
+
+        if (! $adminUser->exists) {
+            $adminPassword = (string) env('APP_ADMIN_INITIAL_PASSWORD');
+
+            if (strlen($adminPassword) < 16) {
+                throw new \InvalidArgumentException('APP_ADMIN_INITIAL_PASSWORD debe tener al menos 16 caracteres antes de crear el administrador.');
+            }
+
+            $adminUser->forceFill([
+                'name' => 'Admin',
+                'password' => Hash::make($adminPassword),
+                'email_verified_at' => now(),
+            ])->save();
+        }
+
+        $adminUser->assignRole($adminRole);
 
     }
 }

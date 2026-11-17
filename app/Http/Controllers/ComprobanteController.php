@@ -4,71 +4,69 @@ namespace App\Http\Controllers;
 
 use App\Models\InscripcionGrupal;
 use App\Models\InscripcionIndividual;
-use App\Services\SupabaseStorage;
-use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use RuntimeException;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ComprobanteController extends Controller
 {
-    public function createUploadUrl(Request $request, SupabaseStorage $storage): JsonResponse
+    public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'content_type' => 'required|in:image/jpeg,image/png,image/webp',
+            'comprobante' => 'required|file|image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
-        if (! $storage->isConfigured()) {
-            return response()->json(['message' => 'El almacenamiento de comprobantes aún no está configurado.'], 503);
+        $file = $data['comprobante'];
+        $extension = match ($file->getMimeType()) {
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/webp' => 'webp',
+            default => abort(422, 'El formato del comprobante no es válido.'),
+        };
+        $path = $file->storeAs(
+            "users/{$request->user()->id}",
+            Str::uuid().".{$extension}",
+            'local',
+        );
+
+        if (! is_string($path)) {
+            throw new \RuntimeException('No se pudo guardar el comprobante en el almacenamiento local.');
         }
 
-        try {
-            return response()->json($storage->createSignedUploadUrl(
-                (int) $request->user()->id,
-                $data['content_type'],
-            ));
-        } catch (ConnectionException|RequestException|RuntimeException $exception) {
-            Log::error('Unable to create a Supabase receipt upload URL.', [
-                'exception' => $exception::class,
-                'status' => $exception instanceof RequestException ? $exception->response->status() : null,
-            ]);
-
-            return response()->json(['message' => 'No se pudo preparar la subida del comprobante. Inténtalo de nuevo.'], 502);
-        }
+        return response()->json(['path' => $path], 201);
     }
 
     public function show(
         string $modalidad,
         int $inscripcion,
-        SupabaseStorage $storage,
-    ): JsonResponse {
+    ): BinaryFileResponse {
         $comprobante = match ($modalidad) {
             'individual' => InscripcionIndividual::query()->findOrFail($inscripcion)->comprobante_pago,
             'grupo' => InscripcionGrupal::query()->findOrFail($inscripcion)->comprobante_pago,
             default => abort(404),
         };
 
-        if (! is_string($comprobante) || $comprobante === '') {
+        if (! is_string($comprobante) || ! preg_match(
+            '/\Ausers\/\d+\/[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.(?:jpg|png|webp)\z/i',
+            $comprobante,
+        )) {
             abort(404);
         }
 
-        if (! $storage->isConfigured()) {
-            return response()->json(['message' => 'El almacenamiento de comprobantes aún no está configurado.'], 503);
+        $disk = Storage::disk('local');
+
+        if (! $disk->exists($comprobante)) {
+            abort(404);
         }
 
-        try {
-            return response()->json([
-                'url' => $storage->createSignedDownloadUrl($comprobante),
-            ]);
-        } catch (ConnectionException|RequestException|RuntimeException $exception) {
-            Log::error('Unable to create a Supabase receipt download URL.', [
-                'exception' => $exception::class,
-                'status' => $exception instanceof RequestException ? $exception->response->status() : null,
-            ]);
+        $response = response()->file($disk->path($comprobante), [
+            'Cache-Control' => 'no-store',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+        $response->setPrivate();
 
-            return response()->json(['message' => 'No se pudo abrir el comprobante. Inténtalo de nuevo.'], 502);
-        }
+        return $response;
     }
 }

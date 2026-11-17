@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import logoLight from '@/../../public/images/Logo2025black.webp';
-import logoDark from '@/../../public/images/Logo2025white.webp';
+import logoLight from '@/../../public/images/Logo2026black.webp';
+import logoDark from '@/../../public/images/Logo2026black.webp';
 import Sponsors from '@/components/welcome/Sponsors.vue';
 import Footer from '@/components/welcome/navigation/Footer.vue';
 import Navbar from '@/components/welcome/navigation/Navbar.vue';
@@ -70,7 +70,7 @@ onMounted(updateSelectedCount);
                 <source :srcset="logoLight" media="(prefers-color-scheme: dark)" />
                 <img class="w-98 mx-auto" :src="logoDark" alt="Logo" />
             </picture>
-            <span class="font-cinzel text-wine dark:text-beige text-2xl select-none">DICIEMBRE 2, 3 y 4</span>
+            <span class="font-cinzel text-wine dark:text-beige text-2xl select-none">DICIEMBRE 9, 10 y 11</span>
         </div>
         <p class="mx-4 mb-2 text-center text-sm text-black/70 dark:text-beige/70">
             Selecciona los juegos y abre el carrito para inscribirte. Al continuar, iniciarás sesión o crearás una cuenta.

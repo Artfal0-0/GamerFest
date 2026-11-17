@@ -8,6 +8,8 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -51,9 +53,25 @@ class ProfileController extends Controller
 
         $user = $request->user();
 
-        Auth::logout();
+        DB::transaction(function () use ($user): void {
+            $hasLinkedRecords = $user->inscripcionesIndividuales()->exists()
+                || $user->equipos()->exists()
+                || $user->ganadoresIndividuales()->exists();
 
-        $user->delete();
+            if ($hasLinkedRecords) {
+                throw ValidationException::withMessages([
+                    'account' => 'No puedes eliminar tu cuenta mientras tenga inscripciones, equipos o participaciones vinculadas. Contacta con la administración para conservar esos registros.',
+                ]);
+            }
+
+            if (! $user->delete()) {
+                throw ValidationException::withMessages([
+                    'account' => 'No se pudo eliminar la cuenta. Inténtalo de nuevo o contacta con la administración.',
+                ]);
+            }
+        });
+
+        Auth::logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

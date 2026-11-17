@@ -24,13 +24,13 @@ const submit = () => {
         <Head title="Verificación de correo electrónico" />
 
         <div v-if="status === 'verification-link-sent'" class="mb-4 text-center text-sm font-medium text-green-600">
-            Se ha enviado un nuevo enlace de verificación a la dirección de correo electrónico que proporcionaste durante el registro.
+            Se solicitó el reenvío. El correo se procesa en segundo plano; revisa tu bandeja de entrada y spam en unos minutos.
         </div>
 
         <form @submit.prevent="submit" class="space-y-6 text-center">
             <Button :disabled="form.processing" variant="secondary">
                 <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
-                Reenviar correo de verificación
+                {{ form.processing ? 'Enviando...' : 'Reenviar correo de verificación' }}
             </Button>
 
             <TextLink :href="route('logout')" method="post" as="button" class="mx-auto block text-sm"> Cerrar sesión </TextLink>

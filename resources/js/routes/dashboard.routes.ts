@@ -1,5 +1,5 @@
 import { NavItem } from '@/types';
-import { Clock10Icon, Gamepad2, Globe, LayoutGrid } from 'lucide-vue-next';
+import { Gamepad2, Globe, LayoutGrid } from 'lucide-vue-next';
 
 // Register new routes
 const mainNavItems: NavItem[] = [
@@ -38,11 +38,6 @@ const footerNavItems: NavItem[] = [
         title: 'Web',
         href: '/',
         icon: Globe,
-    },
-    {
-        title: 'Horarios',
-        href: 'https://dqjwokefdxxejwlbivqd.supabase.co/storage/v1/object/public/resources/pdf/gamer/Evento2025.pdf',
-        icon: Clock10Icon,
     },
 ];
 
