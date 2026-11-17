@@ -4,26 +4,14 @@ use App\Models\InscripcionIndividual;
 use App\Models\Juego;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\Client\Request;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
 
-test('receipt upload URLs are signed and scoped to the authenticated user', function () {
-    config([
-        'services.supabase.url' => 'https://project.supabase.co',
-        'services.supabase.secret_key' => 'sb_secret_test-secret-key',
-        'services.supabase.storage_bucket' => 'inscripciones',
-    ]);
-
-    Http::fake(function (Request $request) {
-        $requestPath = parse_url($request->url(), PHP_URL_PATH);
-
-        return Http::response([
-            'url' => substr($requestPath, strlen('/storage/v1')).'?token=signed-token',
-        ]);
-    });
+test('authenticated users can upload a private local receipt', function () {
+    Storage::fake('local');
 
     $user = User::factory()->create([
         'email_verified_at' => now(),
@@ -31,17 +19,18 @@ test('receipt upload URLs are signed and scoped to the authenticated user', func
     ]);
 
     $response = $this->actingAs($user)
-        ->postJson('/comprobantes/upload-url', ['content_type' => 'image/jpeg'])
-        ->assertOk()
-        ->assertJsonStructure(['path', 'url']);
+        ->post('/comprobantes/upload', [
+            'comprobante' => UploadedFile::fake()->createWithContent(
+                'receipt.png',
+                base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADUlEQVR4nGP4z8AAAAMBAQDJ/pLvAAAAAElFTkSuQmCC'),
+            ),
+        ])
+        ->assertCreated()
+        ->assertJsonStructure(['path']);
 
     $path = $response->json('path');
-    expect($path)->toMatch('/^users\/'.$user->id.'\/[0-9a-f-]+\.jpg$/i');
-    expect(str_ends_with($response->json('url'), "/storage/v1/object/upload/sign/inscripciones/{$path}?token=signed-token"))->toBeTrue();
-
-    Http::assertSent(fn (Request $request) => str_contains($request->url(), '/object/upload/sign/inscripciones/users/'.$user->id.'/')
-        && $request->hasHeader('apikey', 'sb_secret_test-secret-key')
-        && ! $request->hasHeader('Authorization'));
+    expect($path)->toMatch('/^users\/'.$user->id.'\/[0-9a-f-]+\.png$/i');
+    Storage::disk('local')->assertExists($path);
 });
 
 test('inscriptions use the authenticated user and the database price', function () {
@@ -79,17 +68,8 @@ test('inscriptions use the authenticated user and the database price', function 
     expect(InscripcionIndividual::query()->where('user_id', $otherUser->id)->exists())->toBeFalse();
 });
 
-test('only admins receive short-lived download URLs for stored receipts', function () {
-    config([
-        'services.supabase.url' => 'https://project.supabase.co',
-        'services.supabase.secret_key' => 'test-secret-key',
-        'services.supabase.storage_bucket' => 'inscripciones',
-        'services.supabase.signed_url_ttl' => 300,
-    ]);
-
-    Http::fake(fn (Request $request) => Http::response([
-        'signedURL' => '/object/sign/inscripciones/users/1/00000000-0000-4000-8000-000000000000.jpg?token=read-token',
-    ]));
+test('only admins can view locally stored receipts', function () {
+    Storage::fake('local');
 
     $admin = User::factory()->create(['phone' => '5551234567']);
     $admin->assignRole(Role::create(['name' => 'admin', 'guard_name' => 'web']));
@@ -102,6 +82,7 @@ test('only admins receive short-lived download URLs for stored receipts', functi
         'modalidad' => 'individual',
     ]);
     $receiptPath = "users/{$admin->id}/00000000-0000-4000-8000-000000000000.jpg";
+    Storage::disk('local')->put($receiptPath, 'private receipt');
     $inscription = InscripcionIndividual::create([
         'user_id' => $admin->id,
         'id_juego' => $game->id,
@@ -109,15 +90,15 @@ test('only admins receive short-lived download URLs for stored receipts', functi
         'comprobante_pago' => $receiptPath,
     ]);
 
-    $this->actingAs($admin)
-        ->getJson("/admin/comprobantes/individual/{$inscription->id}")
-        ->assertOk()
-        ->assertJson([
-            'url' => "https://project.supabase.co/storage/v1/object/sign/inscripciones/{$receiptPath}?token=read-token",
-        ]);
+    $response = $this->actingAs($admin)
+        ->get("/admin/comprobantes/individual/{$inscription->id}")
+        ->assertOk();
 
-    Http::assertSent(fn (Request $request) => str_contains($request->url(), '/object/sign/inscripciones/'.$receiptPath)
-        && $request['expiresIn'] === 300);
+    expect($response->baseResponse->headers->get('Cache-Control'))
+        ->toContain('private')
+        ->toContain('no-store');
+    expect(file_get_contents($response->baseResponse->getFile()->getPathname()))
+        ->toBe('private receipt');
 
     $user = User::factory()->create(['phone' => '5559876543']);
 

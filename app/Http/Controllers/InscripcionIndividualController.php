@@ -126,7 +126,11 @@ class InscripcionIndividualController extends Controller
             ]);
         }
 
-        $juegosDisponibles = Juego::query()->whereIn('id', $ids)->get()->keyBy('id');
+        $juegosDisponibles = Juego::query()
+            ->where('active', true)
+            ->whereIn('id', $ids)
+            ->get()
+            ->keyBy('id');
 
         if ($juegosDisponibles->count() !== count($ids)) {
             throw ValidationException::withMessages([

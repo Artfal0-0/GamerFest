@@ -63,24 +63,21 @@ const hasTeamMembers = computed(() => {
     return inscripciones.value.some((inscripcion: { equipo?: { miembros?: any } }) => inscripcion.equipo && inscripcion.equipo.miembros);
 });
 
-const verComprobante = async (participante: InscripcionReporte) => {
-    comprobanteSeleccionado.value = '';
+const verComprobante = (participante: InscripcionReporte) => {
+    comprobanteSeleccionado.value = `/admin/comprobantes/${participante.modalidad}/${participante.id}`;
     comprobanteImgLoading.value = true;
     showModal.value = true;
-
-    try {
-        const response = await axios.get(`/admin/comprobantes/${participante.modalidad}/${participante.id}`);
-        comprobanteSeleccionado.value = response.data.url;
-    } catch {
-        closeModal();
-        toast('No se pudo abrir el comprobante', {
-            description: 'Inténtalo de nuevo. Si el problema continúa, revisa la configuración de Supabase Storage.',
-        });
-    }
 };
 
 const onComprobanteImgLoad = () => {
     comprobanteImgLoading.value = false;
+};
+
+const onComprobanteImgError = () => {
+    closeModal();
+    toast('No se pudo abrir el comprobante', {
+        description: 'El archivo no está disponible en el almacenamiento local.',
+    });
 };
 
 const closeModal = () => {
@@ -384,6 +381,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                     alt="Comprobante de Pago"
                     class="max-w-full max-h-96 rounded-lg shadow-lg border border-gray-light/20"
                     @load="onComprobanteImgLoad"
+                    @error="onComprobanteImgError"
                 />
             </div>
         </Modal>

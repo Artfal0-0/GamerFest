@@ -44,11 +44,14 @@ const closeModal = () => {
 
 <template>
     <div class="space-y-6">
-        <HeadingSmall title="Eliminar cuenta" description="Elimina tu cuenta y todos sus recursos" />
+        <HeadingSmall title="Eliminar cuenta" description="Solicita la eliminación de tu cuenta" />
         <div class="space-y-4 rounded-lg border border-red-100 bg-red-50 p-4 dark:border-red-200/10 dark:bg-red-700/10">
             <div class="relative space-y-0.5 text-red-600 dark:text-red-100">
                 <p class="font-medium">Precaución</p>
-                <p class="text-sm">Por favor, proceda con precaución, esto no se puede deshacer.</p>
+                <p class="text-sm">
+                    Si tienes inscripciones, equipos o participaciones vinculadas, no se eliminarán y la cuenta no podrá borrarse. Contacta con la
+                    administración para conservar esos registros.
+                </p>
             </div>
             <Dialog>
                 <DialogTrigger as-child>
@@ -59,10 +62,12 @@ const closeModal = () => {
                         <DialogHeader class="space-y-3">
                             <DialogTitle>¿Estás seguro de que deseas eliminar tu cuenta?</DialogTitle>
                             <DialogDescription>
-                                Una vez que tu cuenta sea eliminada, todos sus recursos y datos también serán eliminados permanentemente. Por favor,
-                                ingresa tu contraseña para confirmar que deseas eliminar tu cuenta de forma permanente.
+                                Ingresa tu contraseña para confirmar la eliminación. Las cuentas con inscripciones, equipos o participaciones
+                                vinculadas no se pueden eliminar.
                             </DialogDescription>
                         </DialogHeader>
+
+                        <InputError :message="form.errors.account" />
 
                         <div class="grid gap-2">
                             <Label for="password" class="sr-only">Contraseña</Label>

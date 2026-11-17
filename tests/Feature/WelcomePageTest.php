@@ -4,6 +4,7 @@ use App\Models\Equipo;
 use App\Models\InscripcionGrupal;
 use App\Models\InscripcionIndividual;
 use App\Models\Juego;
+use App\Models\Sponsor;
 use App\Models\User;
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Support\Facades\DB;
@@ -64,4 +65,35 @@ test('welcome page shows whether the current user is already registered in each 
             ->where('juegosGrupo.0.estaInscrito', true));
 
     expect($gameQueries)->toBe(1);
+});
+
+test('welcome page loads active sponsors from the database, including sponsors without logos', function () {
+    Sponsor::create([
+        'nombre' => 'Sponsor with logo',
+        'url_pagina' => 'https://example.com',
+        'url_imagen' => 'https://example.com/logo.png',
+        'active' => true,
+    ]);
+
+    Sponsor::create([
+        'nombre' => 'Sponsor without logo',
+        'url_pagina' => null,
+        'url_imagen' => null,
+        'active' => true,
+    ]);
+
+    Sponsor::create([
+        'nombre' => 'Inactive sponsor',
+        'url_pagina' => null,
+        'url_imagen' => null,
+        'active' => false,
+    ]);
+
+    $this->get('/')
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Welcome')
+            ->has('sponsors', 2)
+            ->where('sponsors.0.nombre', 'Sponsor with logo')
+            ->where('sponsors.1.nombre', 'Sponsor without logo')
+            ->where('sponsors.1.url_imagen', null));
 });

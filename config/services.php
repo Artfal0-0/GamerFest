@@ -35,12 +35,4 @@ return [
         ],
     ],
 
-    'supabase' => [
-        'url' => env('SUPABASE_URL'),
-        'secret_key' => env('SUPABASE_SECRET_KEY'),
-        'ca_bundle' => env('SUPABASE_CA_BUNDLE'),
-        'storage_bucket' => env('SUPABASE_STORAGE_BUCKET', 'inscripciones'),
-        'signed_url_ttl' => (int) env('SUPABASE_SIGNED_URL_TTL', 300),
-    ],
-
 ];

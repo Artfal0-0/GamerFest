@@ -23,9 +23,10 @@
                     :href="juego.reglamentos_pdf"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="mx-auto inline-flex items-center px-3 py-2 text-sm font-bold text-center text-wine dark:text-white transition-colors"
+                    class="mx-auto inline-flex items-center justify-center gap-2 rounded border border-wine/40 px-4 py-2 text-sm font-bold text-wine transition-colors hover:border-wine hover:bg-wine hover:text-beige dark:border-beige/40 dark:text-beige dark:hover:border-wine"
                 >
-                    <Book></Book><span class="pl-2 font-cinzel">Reglamento</span>
+                    <Book class="h-4 w-4" />
+                    <span class="font-cinzel">Ver reglamento (PDF)</span>
                 </a>
             </div>
         </div>
@@ -52,9 +53,10 @@
                     :href="juego.reglamentos_pdf"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="mx-auto inline-flex items-center px-3 py-2 text-sm font-bold text-center text-wine dark:text-white transition-colors"
+                    class="mx-auto inline-flex items-center justify-center gap-2 rounded border border-wine/40 px-4 py-2 text-sm font-bold text-wine transition-colors hover:border-wine hover:bg-wine hover:text-beige dark:border-beige/40 dark:text-beige dark:hover:border-wine"
                 >
-                    <Book></Book><span class="pl-2 font-cinzel">Reglamento</span>
+                    <Book class="h-4 w-4" />
+                    <span class="font-cinzel">Ver reglamento (PDF)</span>
                 </a>
             </div>
         </div>

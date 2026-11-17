@@ -6,10 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Favicon para modo claro -->
-    <link rel="icon" href="{{ asset('/images/favicon-light.ico') }}" media="(prefers-color-scheme: light)">
+    <link rel="icon" href="{{ asset('/images/favicon26-dark.ico') }}" media="(prefers-color-scheme: light)">
 
     <!-- Favicon para modo oscuro -->
-    <link rel="icon" href="{{ asset('/images/favicon-dark.ico') }}" media="(prefers-color-scheme: dark)">
+    <link rel="icon" href="{{ asset('/images/favicon26-dark.ico') }}" media="(prefers-color-scheme: dark)">
 
 
     {{-- Inline script to detect system dark mode preference and apply it immediately --}}
@@ -26,13 +26,6 @@
             }
         })();
     </script>
-
-    <script>
-        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-    </script>
-    @if (env('APP_ENV') === 'production')
-        <script defer src="/_vercel/insights/script.js"></script>
-    @endif
 
     {{-- Inline style to set the HTML background color based on our theme in app.css --}}
     <style>

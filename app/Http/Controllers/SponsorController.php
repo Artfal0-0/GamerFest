@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Sponsor;
+use Illuminate\Http\Request;
 
 class SponsorController extends Controller
 {
@@ -12,9 +12,10 @@ class SponsorController extends Controller
         // Obtiene todos los sponsors y los muestra en una vista
         try {
             $sponsors = Sponsor::all();
+
             return response()->json($sponsors);
         } catch (\Exception $e) {
-            return response()->json(['message' => "Error al obtener sponsors: " . $e->getMessage()], 500);
+            return response()->json(['message' => 'Error al obtener sponsors: '.$e->getMessage()], 500);
         }
     }
 
@@ -33,18 +34,14 @@ class SponsorController extends Controller
     public function store(Request $request)
     {
         // Valida los datos del formulario
-        $request->validate([
-            'nombre' => 'required',
-            'url_pagina' => 'required|url',
-            'url_imagen' => 'required|url',
+        $data = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'url_pagina' => 'nullable|url|max:255',
+            'url_imagen' => 'nullable|url|max:255',
         ]);
 
         // Crea un nuevo sponsor con los datos del formulario
-        Sponsor::create([
-            'nombre' => $request->nombre,
-            'url_pagina' => $request->url_pagina,
-            'url_imagen' => $request->url_imagen,
-        ]);
+        Sponsor::create($data);
 
         // Redirige a la página de índice de sponsors con un mensaje de éxito
         return redirect()->route('sponsors.index')->with('success', 'Sponsor creado exitosamente.');
@@ -74,18 +71,14 @@ class SponsorController extends Controller
     public function update(Request $request, Sponsor $sponsor)
     {
         // Valida los datos del formulario
-        $request->validate([
-            'nombre' => 'required',
-            'url_pagina' => 'required|url',
-            'url_imagen' => 'required|url',
+        $data = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'url_pagina' => 'nullable|url|max:255',
+            'url_imagen' => 'nullable|url|max:255',
         ]);
 
         // Actualiza los campos del sponsor con los datos del formulario
-        $sponsor->update([
-            'nombre' => $request->nombre,
-            'url_pagina' => $request->url_pagina,
-            'url_imagen' => $request->url_imagen,
-        ]);
+        $sponsor->update($data);
 
         // Redirige a la página de detalles del sponsor con un mensaje de éxito
         return redirect()->route('sponsors.show', $sponsor)->with('success', 'Sponsor actualizado exitosamente.');

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ExternalLink } from 'lucide-vue-next';
-import logoLight from '@/../../public/images/Logo2025black.webp';
-import logoDark from '@/../../public/images/Logo2025white.webp';
+import logoLight from '@/../../public/images/Logo2026black.webp';
+import logoDark from '@/../../public/images/Logo2026black.webp';
 </script>
 
 <template>
@@ -16,7 +16,7 @@ import logoDark from '@/../../public/images/Logo2025white.webp';
                         </picture>
                     </div>
                     <p class="dark:text-beige/70 text-sm mb-4">El evento gaming más importante del año. Torneos, exhibiciones y mucho más.</p>
-                    <p class="dark:text-beige text-sm font-cinzel">DICIEMBRE 2, 3 y 4</p>
+                    <p class="dark:text-beige text-sm font-cinzel">DICIEMBRE 9, 10 y 11</p>
                 </div>
 
                 <div class="md:col-span-1">
@@ -70,7 +70,7 @@ import logoDark from '@/../../public/images/Logo2025white.webp';
                         </a>
                     </div>
                     <h3 class="dark:text-beige text-sm font-cinzel font-bold mb-2 tracking-wider">CONTACTO</h3>
-                    <p class="dark:text-beige/70 text-sm">info@gamerfestespel.com</p>
+                    <p class="dark:text-beige/70 text-sm">gamerfest202651@gmail.com</p>
                 </div>
             </div>
 

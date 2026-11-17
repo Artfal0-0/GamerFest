@@ -3,8 +3,8 @@
 import { ChevronDown, ShoppingCart } from 'lucide-vue-next';
 import { ref } from 'vue';
 // import { route } from 'ziggy-js';
-import iconLight from '@/../../public/images/Icon2025black.webp';
-import iconDark from '@/../../public/images/Icon2025white.webp';
+import iconLight from '@/../../public/images/Icon2026black.webp';
+import iconDark from '@/../../public/images/Icon2026black.webp';
 import AdsContent from '../AdsContent.vue';
 import type { Ads } from '@/types/api/Ad.type';
 
@@ -80,7 +80,7 @@ const navigationItems: NavigationItems[] = [
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center h-10 text-xs">
                     <div class="flex items-center space-x-4">
-                        <span class="font-cinzel">DICIEMBRE 2, 3 y 4</span>
+                        <span class="font-cinzel">DICIEMBRE 9, 10 y 11</span>
                     </div>
                     <div class="flex items-center space-x-4">
                         <a

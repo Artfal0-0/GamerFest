@@ -95,7 +95,7 @@ const submit = () => {
                         </p>
 
                         <div v-if="status === 'verification-link-sent'" class="mt-2 text-sm font-medium text-green-600">
-                            Un nuevo enlace de verificación ha sido enviado a tu correo electrónico.
+                            Se solicitó el reenvío. Revisa tu bandeja de entrada y spam en unos minutos.
                         </div>
                     </div>
 

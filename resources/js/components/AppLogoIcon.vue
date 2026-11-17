@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from 'vue';
-import logoLight from '@/../../public/favicon-light.ico';
-import logoDark from '@/../../public/favicon-dark.ico';
+import logoLight from '@/../../public/images/favicon26-dark.ico';
+import logoDark from '@/../../public/images/favicon26-dark.ico';
 
 defineOptions({
     inheritAttrs: false,
